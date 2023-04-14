@@ -58,7 +58,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
     def detectImage(self):
         if self.state is State.IMAGE_DETECTION:
             result = self.detector.getInferResult(self.imagePath)
-            # self.infoPanel.append(result.pandas().xyxy[0])
             img = np.squeeze(result.render())
-            show_image = QImage(img.data, img.shape[1], img.shape[0], QImage.Format_RGB888)
+            show_image = QImage(img.data, img.shape[1], img.shape[0], img.shape[1] * 3, QImage.Format_RGB888)
             self.showPanel.setPixmap(QPixmap.fromImage(show_image).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
+            self.infoPanel.append(str(result))
