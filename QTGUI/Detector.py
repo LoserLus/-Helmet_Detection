@@ -9,11 +9,13 @@ class Detector:
 
         # self.inference = torch.load(self.model)
 
-    def getInferResult(self, imgPath):
+    def getInferResultFromPath(self, imgPath):
         # img = Image.open(imgPath)
         result = self.inference(imgPath, size=640)
         return result
-
+    def getInferResultFromImage(self, img):
+        result = self.inference(img)
+        return result
     def changeModel(self, newModel):
         self.model = newModel
         self.inference = torch.load(self.model)
