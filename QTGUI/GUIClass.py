@@ -1,12 +1,12 @@
+from enum import Enum
+
 import cv2
 import numpy as np
-from PIL import Image
 from PyQt5 import QtCore
-from PyQt5.QtCore import QUrl, QTimer
+from PyQt5.QtCore import QTimer
 from PyQt5.QtGui import QPixmap, QImage
-from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
-from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QDesktopWidget, QLabel, QFileDialog
-from enum import Enum
+from PyQt5.QtWidgets import QWidget, QDesktopWidget, QFileDialog
+
 import GUIForm
 from Detector import Detector
 
@@ -28,6 +28,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.imagePath = ''
         self.videoPath = ''
         self.videoCap = None
+        self.isVideoDetect = False
         self.timer = QTimer(self)
         self.center()
         self.bindFunction()
@@ -50,6 +51,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.imageSelectBtn.clicked.connect(self.getImage)
         self.imageDetectionBtn.clicked.connect(self.detectImage)
         self.videoSelectBtn.clicked.connect(self.getVideo)
+        self.videoDetectionBtn.clicked.connect(self.setVideoDetect)
         self.timer.timeout.connect(self.nextFrame)
 
     def getImage(self):
@@ -96,6 +98,9 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                 ret, videoFrame = self.videoCap.read()
                 videoFrame = cv2.cvtColor(videoFrame, cv2.COLOR_BGR2RGB)
                 if ret:
+                    if self.isVideoDetect:
+                        result = self.detector.getInferResultFromImage(videoFrame)
+                        videoFrame = np.squeeze(result.render())
                     videoImg = QImage(videoFrame.data, videoFrame.shape[1], videoFrame.shape[0],
                                       videoFrame.shape[1] * 3, QImage.Format_RGB888)
                     self.showPanel.setPixmap(
@@ -103,11 +108,16 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                 else:
                     self.timer.stop()
                     self.infoPanel.append('play video: {} done'.format(self.videoPath))
+
     def detectImage(self):
         if self.state is State.IMAGE_DETECTION:
-            result = self.detector.getInferResult(self.imagePath)
+            result = self.detector.getInferResultFromPath(self.imagePath)
             img = np.squeeze(result.render())
             show_image = QImage(img.data, img.shape[1], img.shape[0], img.shape[1] * 3, QImage.Format_RGB888)
             self.showPanel.setPixmap(
                 QPixmap.fromImage(show_image).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
             self.infoPanel.append(str(result))
+
+    def setVideoDetect(self):
+        if self.state is State.VIDEO_DETECTION:
+            self.isVideoDetect = not self.isVideoDetect
