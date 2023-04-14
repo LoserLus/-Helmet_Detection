@@ -43,9 +43,6 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         newTop = (screen.height() - size.height()) / 2 - 100
         self.move(int(newLeft), int(newTop))
 
-    def setPosition(self):
-        self.showPanel.resize(800, 600)
-
     def bindFunction(self):
 
         self.imageSelectBtn.clicked.connect(self.getImage)
