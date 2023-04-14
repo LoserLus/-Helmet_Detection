@@ -1,7 +1,10 @@
+import cv2
 import numpy as np
 from PIL import Image
 from PyQt5 import QtCore
+from PyQt5.QtCore import QUrl, QTimer
 from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtMultimedia import QMediaPlayer, QMediaContent
 from PyQt5.QtWidgets import QWidget, QApplication, QPushButton, QDesktopWidget, QLabel, QFileDialog
 from enum import Enum
 import GUIForm
@@ -23,6 +26,9 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.setWindowTitle('安全帽检测')
         self.state = State.INIT
         self.imagePath = ''
+        self.videoPath = ''
+        self.videoCap = None
+        self.timer = QTimer(self)
         self.center()
         self.bindFunction()
         self.detector = Detector()
@@ -43,10 +49,16 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
 
         self.imageSelectBtn.clicked.connect(self.getImage)
         self.imageDetectionBtn.clicked.connect(self.detectImage)
+        self.videoSelectBtn.clicked.connect(self.getVideo)
+        self.timer.timeout.connect(self.nextFrame)
 
     def getImage(self):
-        imageFile, _ = QFileDialog.getOpenFileName(self, 'Open file', 'E:\Yolo5\Safety_Helmet_Train_dataset\score\images\\test', 'Image files (*.jpg *.png *.jpeg)')
+        imageFile, _ = QFileDialog.getOpenFileName(self, 'Open file',
+                                                   'E:\Yolo5\Safety_Helmet_Train_dataset\score\images\\test',
+                                                   'Image files (*.jpg *.png *.jpeg)')
         if imageFile != '':
+            if self.timer.isActive():
+                self.timer.stop()
             self.state = State.IMAGE_DETECTION
             scaledImage = QPixmap(imageFile).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio)
             self.showPanel.setPixmap(scaledImage)
@@ -55,10 +67,47 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         else:
             self.infoPanel.append('open image: {} error'.format(imageFile))
 
+    def getVideo(self):
+        videoFile, _ = QFileDialog.getOpenFileName(self, 'Open file',
+                                                   'F:\Desktop\\1_20180419110414_rfusd',
+                                                   'Video files (*.mp4 *.avi )')
+        if videoFile != '':
+            self.state = State.VIDEO_DETECTION
+            self.videoPath = videoFile
+            self.videoCap = cv2.VideoCapture(self.videoPath)
+            ret, videoFrame = self.videoCap.read()
+            if ret:
+                videoFrame = cv2.cvtColor(videoFrame, cv2.COLOR_BGR2RGB)
+                videoImg = QImage(videoFrame.data, videoFrame.shape[1], videoFrame.shape[0], videoFrame.shape[1] * 3,
+                                  QImage.Format_RGB888)
+                self.showPanel.setPixmap(
+                    QPixmap.fromImage(videoImg).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
+                FPS = self.videoCap.get(cv2.CAP_PROP_FPS)
+                self.timer.start(1000 / FPS)
+                self.infoPanel.append('open video: {} success'.format(videoFile))
+            else:
+                self.infoPanel.append('read video: {} error'.format(videoFile))
+        else:
+            self.infoPanel.append('open video: {} error'.format(videoFile))
+
+    def nextFrame(self):
+        if self.state is State.VIDEO_DETECTION:
+            if self.videoCap is not None:
+                ret, videoFrame = self.videoCap.read()
+                videoFrame = cv2.cvtColor(videoFrame, cv2.COLOR_BGR2RGB)
+                if ret:
+                    videoImg = QImage(videoFrame.data, videoFrame.shape[1], videoFrame.shape[0],
+                                      videoFrame.shape[1] * 3, QImage.Format_RGB888)
+                    self.showPanel.setPixmap(
+                        QPixmap.fromImage(videoImg).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
+                else:
+                    self.timer.stop()
+                    self.infoPanel.append('play video: {} done'.format(self.videoPath))
     def detectImage(self):
         if self.state is State.IMAGE_DETECTION:
             result = self.detector.getInferResult(self.imagePath)
             img = np.squeeze(result.render())
             show_image = QImage(img.data, img.shape[1], img.shape[0], img.shape[1] * 3, QImage.Format_RGB888)
-            self.showPanel.setPixmap(QPixmap.fromImage(show_image).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
+            self.showPanel.setPixmap(
+                QPixmap.fromImage(show_image).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
             self.infoPanel.append(str(result))
