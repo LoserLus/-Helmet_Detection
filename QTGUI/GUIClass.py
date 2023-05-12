@@ -33,6 +33,9 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.center()
         self.bindFunction()
         self.detector = Detector()
+        self.helmetIds=set()
+        self.headIds = set()
+        self.frameCount=0
 
     def center(self):  # 定义一个函数使得窗口居中显示
         # 获取屏幕坐标系
@@ -93,11 +96,34 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         if self.state is State.VIDEO_DETECTION:
             if self.videoCap is not None:
                 ret, videoFrame = self.videoCap.read()
-                videoFrame = cv2.cvtColor(videoFrame, cv2.COLOR_BGR2RGB)
                 if ret:
+                    videoFrame = cv2.cvtColor(videoFrame, cv2.COLOR_BGR2RGB)
+                    self.frameCount = self.frameCount+1
                     if self.isVideoDetect:
-                        result = self.detector.getInferResultFromImage(videoFrame)
-                        videoFrame = np.squeeze(result.render())
+                        result = self.detector.getTrackingResult(videoFrame)
+                        headNum = 0
+                        helmetNum = 0
+                        label = ''
+                        for info in result:
+                            # print(info)
+                            if info[5] == 1:
+                                label = 'helmet'
+                                self.helmetIds.add(info[4])
+                                helmetNum = helmetNum + 1
+                            elif info[5] == 0:
+                                label = 'head'
+                                headNum = headNum + 1
+                                self.headIds.add(info[4])
+                            cv2.rectangle(videoFrame, (int(info[0]), int(info[1])), (int(info[2]), int(info[3])),
+                                          (255 * (1 - info[5]), 255 * info[5], 0), thickness=1)
+                            cv2.putText(videoFrame, label + '#' + str(int(info[4])), (int(info[0]), int(info[1])),
+                                        cv2.FONT_HERSHEY_PLAIN,
+                                        1.2, (255, 0, 0), 1)
+
+                            self.infoPanel.setText('Helmet Count: ' + str(helmetNum) +'\n'+ 'Head Count:' + str(headNum))
+
+
+                        # videoFrame = np.squeeze(result.render())
                     videoImg = QImage(videoFrame.data, videoFrame.shape[1], videoFrame.shape[0],
                                       videoFrame.shape[1] * 3, QImage.Format_RGB888)
                     self.showPanel.setPixmap(
@@ -105,6 +131,9 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                 else:
                     self.timer.stop()
                     self.infoPanel.append('play video: {} done'.format(self.videoPath))
+                    self.infoPanel.append('Total Helmet: {}\nTotal Head:{}\nTotal Object:{}'.format(len(self.helmetIds),len(self.headIds),len(self.helmetIds)+len(self.headIds)))
+                    self.detector.tracker.clear()
+                    self.frameCount=0
 
     def detectImage(self):
         if self.state is State.IMAGE_DETECTION:
