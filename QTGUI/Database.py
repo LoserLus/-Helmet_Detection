@@ -13,8 +13,8 @@ class Database:
         # DataFrame写入MySQL
         # 新建DataFrame
         df_write = pd.DataFrame(
-            {'name': name, 'time': data_time,
-             'helmet': helmet, 'head': head, 'total': head + helmet})
+            {'name': [name], 'time': [data_time],
+             'helmet': [helmet], 'head': [head], 'total': [head + helmet]})
         # 将df储存为MySQL中的表，不储存index列
         df_write.to_sql('result', self.engine, index=False, if_exists='append')
         return True
