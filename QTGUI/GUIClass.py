@@ -33,9 +33,8 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.center()
         self.bindFunction()
         self.detector = Detector()
-        self.helmetIds=set()
+        self.helmetIds = set()
         self.headIds = set()
-        self.frameCount=0
 
     def center(self):  # 定义一个函数使得窗口居中显示
         # 获取屏幕坐标系
@@ -45,6 +44,23 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         newLeft = (screen.width() - size.width()) / 2
         newTop = (screen.height() - size.height()) / 2 - 100
         self.move(int(newLeft), int(newTop))
+
+    def MOTInit(self):
+        self.detector.tracker.clear()
+        self.frameCount = 0
+        self.headIds.clear()
+        self.helmetIds.clear()
+
+    def stateChangeTo(self, newState):
+        if newState is State.IMAGE_DETECTION:
+            if self.state is State.VIDEO_DETECTION:
+                if self.timer.isActive():
+                    self.timer.stop()
+                self.MOTInit()
+        elif newState is State.VIDEO_DETECTION:
+            self.MOTInit()
+
+        self.state = newState
 
     def bindFunction(self):
 
@@ -59,9 +75,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                                                    'E:\Yolo5\Safety_Helmet_Train_dataset\score\images\\test',
                                                    'Image files (*.jpg *.png *.jpeg)')
         if imageFile != '':
-            if self.timer.isActive():
-                self.timer.stop()
-            self.state = State.IMAGE_DETECTION
+            self.stateChangeTo(State.IMAGE_DETECTION)
             scaledImage = QPixmap(imageFile).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio)
             self.showPanel.setPixmap(scaledImage)
             self.imagePath = imageFile
@@ -74,7 +88,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                                                    'F:\Desktop\\1_20180419110414_rfusd',
                                                    'Video files (*.mp4 *.avi )')
         if videoFile != '':
-            self.state = State.VIDEO_DETECTION
+            self.stateChangeTo(State.VIDEO_DETECTION)
             self.videoPath = videoFile
             self.videoCap = cv2.VideoCapture(self.videoPath)
             ret, videoFrame = self.videoCap.read()
@@ -98,7 +112,6 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                 ret, videoFrame = self.videoCap.read()
                 if ret:
                     videoFrame = cv2.cvtColor(videoFrame, cv2.COLOR_BGR2RGB)
-                    self.frameCount = self.frameCount+1
                     if self.isVideoDetect:
                         result = self.detector.getTrackingResult(videoFrame)
                         headNum = 0
@@ -120,8 +133,8 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                                         cv2.FONT_HERSHEY_PLAIN,
                                         1.2, (255, 0, 0), 1)
 
-                            self.infoPanel.setText('Helmet Count: ' + str(helmetNum) +'\n'+ 'Head Count:' + str(headNum))
-
+                            self.infoPanel.setText(
+                                'Helmet Count: ' + str(helmetNum) + '\n' + 'Head Count:' + str(headNum))
 
                         # videoFrame = np.squeeze(result.render())
                     videoImg = QImage(videoFrame.data, videoFrame.shape[1], videoFrame.shape[0],
@@ -131,9 +144,10 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                 else:
                     self.timer.stop()
                     self.infoPanel.append('play video: {} done'.format(self.videoPath))
-                    self.infoPanel.append('Total Helmet: {}\nTotal Head:{}\nTotal Object:{}'.format(len(self.helmetIds),len(self.headIds),len(self.helmetIds)+len(self.headIds)))
-                    self.detector.tracker.clear()
-                    self.frameCount=0
+                    self.infoPanel.append('Total Helmet: {}\nTotal Head:{}\nTotal Object:{}'.format(len(self.helmetIds),
+                                                                                                    len(self.headIds),
+                                                                                                    len(self.helmetIds) + len(
+                                                                                                        self.headIds)))
 
     def detectImage(self):
         if self.state is State.IMAGE_DETECTION:
