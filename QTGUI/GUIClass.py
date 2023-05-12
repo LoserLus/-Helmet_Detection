@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QWidget, QDesktopWidget, QFileDialog
 
 import GUIForm
 from Detector import Detector
+from Database import Database
 
 
 class State(Enum):
@@ -33,6 +34,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.center()
         self.bindFunction()
         self.detector = Detector()
+        self.database = Database()
         self.helmetIds = set()
         self.headIds = set()
 
@@ -53,11 +55,16 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
 
     def stateChangeTo(self, newState):
         if newState is State.IMAGE_DETECTION:
-            if self.state is State.VIDEO_DETECTION:
+            if self.state in [State.VIDEO_DETECTION,State.REAL_TIME_DETECTION]:
                 if self.timer.isActive():
                     self.timer.stop()
                 self.MOTInit()
         elif newState is State.VIDEO_DETECTION:
+            self.MOTInit()
+        elif newState is State.REAL_TIME_DETECTION:
+            if self.state is State.VIDEO_DETECTION:
+                if self.timer.isActive():
+                    self.timer.stop()
             self.MOTInit()
 
         self.state = newState
@@ -68,8 +75,22 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.imageDetectionBtn.clicked.connect(self.detectImage)
         self.videoSelectBtn.clicked.connect(self.getVideo)
         self.videoDetectionBtn.clicked.connect(self.setVideoDetect)
+        self.cameraBtn.clicked.connect(self.getCamera)
         self.timer.timeout.connect(self.nextFrame)
 
+    def getCamera(self):
+        self.stateChangeTo(State.REAL_TIME_DETECTION)
+        self.videoCap = cv2.VideoCapture(0)
+        self.videoCap.set(cv2.CAP_PROP_FPS, 30)
+        ret, videoFrame = self.videoCap.read()
+        if ret:
+            videoFrame = cv2.cvtColor(videoFrame, cv2.COLOR_BGR2RGB)
+            videoImg = QImage(videoFrame.data, videoFrame.shape[1], videoFrame.shape[0], videoFrame.shape[1] * 3,
+                              QImage.Format_RGB888)
+            self.showPanel.setPixmap(
+                QPixmap.fromImage(videoImg).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
+        self.timer.start(1000 / 30)
+        self.infoPanel.append('open camera success')
     def getImage(self):
         imageFile, _ = QFileDialog.getOpenFileName(self, 'Open file',
                                                    'E:\Yolo5\Safety_Helmet_Train_dataset\score\images\\test',
@@ -107,7 +128,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
             self.infoPanel.append('open video: {} error'.format(videoFile))
 
     def nextFrame(self):
-        if self.state is State.VIDEO_DETECTION:
+        if self.state in [State.VIDEO_DETECTION,State.REAL_TIME_DETECTION]:
             if self.videoCap is not None:
                 ret, videoFrame = self.videoCap.read()
                 if ret:
@@ -149,6 +170,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                                                                                                     len(self.helmetIds) + len(
                                                                                                         self.headIds)))
 
+
     def detectImage(self):
         if self.state is State.IMAGE_DETECTION:
             result = self.detector.getInferResultFromPath(self.imagePath)
@@ -159,5 +181,6 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
             self.infoPanel.append(str(result))
 
     def setVideoDetect(self):
-        if self.state is State.VIDEO_DETECTION:
+        if self.state in [State.VIDEO_DETECTION,State.REAL_TIME_DETECTION]:
             self.isVideoDetect = not self.isVideoDetect
+
