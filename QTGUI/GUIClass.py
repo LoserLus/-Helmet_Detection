@@ -1,15 +1,18 @@
+import os
 from enum import IntEnum
 
 import cv2
 import numpy as np
-from PyQt5 import QtCore
-from PyQt5.QtCore import QTimer
+from PyQt5 import QtCore, QtMultimedia
+from PyQt5.QtCore import QTimer, QUrl
 from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtMultimedia import QMediaContent
 from PyQt5.QtWidgets import QWidget, QDesktopWidget, QFileDialog
 
 import GUIForm
 from Detector import Detector
 from Database import Database
+from playsound import playsound
 
 
 class State(IntEnum):
@@ -27,8 +30,10 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.setWindowTitle('安全帽检测')
         self.imagePath = ''
         self.videoPath = ''
+        self.musicPath = './src/Beep.mp3'
         self.videoCap = None
         self.isVideoDetect = False
+        self.isMusicPlay = False
         self.timer = QTimer(self)
         self.center()
         self.bindFunction()
@@ -37,7 +42,12 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.helmetIds = set()
         self.headIds = set()
         self.stateList = ['初始化', '图像检测', '视频检测', '实时检测']
+        self.state = None
         self.stateChangeTo(State.INIT)
+        self.music = QMediaContent(QUrl.fromLocalFile(os.path.abspath('./src/Beep.mp3')))
+        self.player = QtMultimedia.QMediaPlayer(self)
+        self.player.setMedia(self.music)
+        self.player.setVolume(50.0)
 
     def center(self):  # 定义一个函数使得窗口居中显示
         # 获取屏幕坐标系
@@ -50,7 +60,6 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
 
     def MOTInit(self):
         self.detector.tracker.clear()
-        self.frameCount = 0
         self.headIds.clear()
         self.helmetIds.clear()
 
@@ -69,9 +78,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
             self.MOTInit()
 
         self.state = newState
-        self.statePanel.setText('系统状态: ' + self.stateList[int(self.state)])
-        temp ='开启' if self.isVideoDetect else '关闭'
-        self.statePanel.append('视频检测状态:' + temp)
+        self.updateState()
 
     def bindFunction(self):
 
@@ -80,6 +87,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.videoSelectBtn.clicked.connect(self.getVideo)
         self.videoDetectionBtn.clicked.connect(self.setVideoDetect)
         self.cameraBtn.clicked.connect(self.getCamera)
+        self.soundBtn.clicked.connect(self.setMusicPlay)
         self.dataExportBtn.clicked.connect(self.exportData)
         self.timer.timeout.connect(self.nextFrame)
 
@@ -139,11 +147,11 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                 ret, videoFrame = self.videoCap.read()
                 if ret:
                     videoFrame = cv2.cvtColor(videoFrame, cv2.COLOR_BGR2RGB)
+                    headNum = 0
+                    helmetNum = 0
+                    label = ''
                     if self.isVideoDetect:
                         result = self.detector.getTrackingResult(videoFrame)
-                        headNum = 0
-                        helmetNum = 0
-                        label = ''
                         for info in result:
                             # print(info)
                             if info[5] == 1:
@@ -168,6 +176,9 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                                       videoFrame.shape[1] * 3, QImage.Format_RGB888)
                     self.showPanel.setPixmap(
                         QPixmap.fromImage(videoImg).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
+                    if self.isMusicPlay and headNum > 0:
+                        # playsound(self.musicPath,block=False)
+                        self.player.play()
                 else:
                     self.timer.stop()
                     self.infoPanel.append('play video: {} done'.format(self.videoPath))
@@ -175,19 +186,43 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                                                                                                     len(self.headIds),
                                                                                                     len(self.helmetIds) + len(
                                                                                                         self.headIds)))
+                    name = self.videoPath
+                    self.database.insert(name, len(self.helmetIds), len(self.headIds))
+                    self.infoPanel.append(name + ' detection result saved to database successfully')
 
     def detectImage(self):
         if self.state is State.IMAGE_DETECTION:
             result = self.detector.getInferResultFromPath(self.imagePath)
+            result.names[0] = 'head'
             img = np.squeeze(result.render())
             show_image = QImage(img.data, img.shape[1], img.shape[0], img.shape[1] * 3, QImage.Format_RGB888)
             self.showPanel.setPixmap(
                 QPixmap.fromImage(show_image).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
+            info = result.xyxy[0].cpu().numpy()
+            helmet = 0
+            for i in info:
+                helmet = helmet + int(i[5])
             self.infoPanel.append(str(result))
+            self.database.insert(self.imagePath, helmet, len(info) - helmet)
+            self.infoPanel.append('image detection result saved to database successfully')
+
+    def updateState(self):
+        self.statePanel.setText('系统状态: ' + self.stateList[int(self.state)])
+        temp = '开启' if self.isVideoDetect else '关闭'
+        self.statePanel.append('视频检测状态:' + temp)
+        temp = '开启' if self.isMusicPlay else '关闭'
+        self.statePanel.append('警报状态:' + temp)
 
     def setVideoDetect(self):
         if self.state in [State.VIDEO_DETECTION, State.REAL_TIME_DETECTION]:
             self.isVideoDetect = not self.isVideoDetect
+            self.updateState()
+            # if self.state is State.REAL_TIME_DETECTION and self
+
+    def setMusicPlay(self):
+        if self.state in [State.VIDEO_DETECTION, State.REAL_TIME_DETECTION]:
+            self.isMusicPlay = not self.isMusicPlay
+            self.updateState()
 
     def exportData(self):
         self.database.query2Excel('result')
