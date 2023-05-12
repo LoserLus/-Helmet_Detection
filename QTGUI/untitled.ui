@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1250</width>
+    <width>1245</width>
     <height>800</height>
    </rect>
   </property>
@@ -41,7 +41,7 @@
      <x>1020</x>
      <y>0</y>
      <width>221</width>
-     <height>781</height>
+     <height>611</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -103,25 +103,6 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="videoDetectionBtn">
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="baseSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>视频检测</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <widget class="QPushButton" name="cameraBtn">
       <property name="minimumSize">
        <size>
@@ -141,7 +122,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="realtimeDetectionBtn">
+     <widget class="QPushButton" name="videoDetectionBtn">
       <property name="minimumSize">
        <size>
         <width>200</width>
@@ -155,33 +136,26 @@
        </size>
       </property>
       <property name="text">
-       <string>实时检测</string>
+       <string>视频检测</string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QRadioButton" name="modelBtn1">
+     <widget class="QPushButton" name="dataExportBtn">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>50</height>
+       </size>
+      </property>
       <property name="baseSize">
        <size>
         <width>200</width>
-        <height>30</height>
+        <height>50</height>
        </size>
       </property>
       <property name="text">
-       <string>模型1</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QRadioButton" name="modelBtn2">
-      <property name="baseSize">
-       <size>
-        <width>200</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>模型2</string>
+       <string>数据导出</string>
       </property>
      </widget>
     </item>
@@ -232,6 +206,16 @@
      <y>611</y>
      <width>1017</width>
      <height>190</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QTextBrowser" name="statePanel">
+   <property name="geometry">
+    <rect>
+     <x>1020</x>
+     <y>610</y>
+     <width>221</width>
+     <height>192</height>
     </rect>
    </property>
   </widget>
