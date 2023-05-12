@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import IntEnum
 
 import cv2
 import numpy as np
@@ -12,7 +12,7 @@ from Detector import Detector
 from Database import Database
 
 
-class State(Enum):
+class State(IntEnum):
     INIT = 0
     IMAGE_DETECTION = 1
     VIDEO_DETECTION = 2
@@ -25,7 +25,6 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         super().__init__()
         self.setupUi(self)
         self.setWindowTitle('安全帽检测')
-        self.state = State.INIT
         self.imagePath = ''
         self.videoPath = ''
         self.videoCap = None
@@ -37,6 +36,8 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.database = Database()
         self.helmetIds = set()
         self.headIds = set()
+        self.stateList = ['初始化', '图像检测', '视频检测', '实时检测']
+        self.stateChangeTo(State.INIT)
 
     def center(self):  # 定义一个函数使得窗口居中显示
         # 获取屏幕坐标系
@@ -55,7 +56,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
 
     def stateChangeTo(self, newState):
         if newState is State.IMAGE_DETECTION:
-            if self.state in [State.VIDEO_DETECTION,State.REAL_TIME_DETECTION]:
+            if self.state in [State.VIDEO_DETECTION, State.REAL_TIME_DETECTION]:
                 if self.timer.isActive():
                     self.timer.stop()
                 self.MOTInit()
@@ -68,6 +69,9 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
             self.MOTInit()
 
         self.state = newState
+        self.statePanel.setText('系统状态: ' + self.stateList[int(self.state)])
+        temp ='开启' if self.isVideoDetect else '关闭'
+        self.statePanel.append('视频检测状态:' + temp)
 
     def bindFunction(self):
 
@@ -76,6 +80,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.videoSelectBtn.clicked.connect(self.getVideo)
         self.videoDetectionBtn.clicked.connect(self.setVideoDetect)
         self.cameraBtn.clicked.connect(self.getCamera)
+        self.dataExportBtn.clicked.connect(self.exportData)
         self.timer.timeout.connect(self.nextFrame)
 
     def getCamera(self):
@@ -90,7 +95,8 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
             self.showPanel.setPixmap(
                 QPixmap.fromImage(videoImg).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
         self.timer.start(1000 / 30)
-        self.infoPanel.append('open camera success')
+        self.infoPanel.setText('open camera success')
+
     def getImage(self):
         imageFile, _ = QFileDialog.getOpenFileName(self, 'Open file',
                                                    'E:\Yolo5\Safety_Helmet_Train_dataset\score\images\\test',
@@ -100,9 +106,9 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
             scaledImage = QPixmap(imageFile).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio)
             self.showPanel.setPixmap(scaledImage)
             self.imagePath = imageFile
-            self.infoPanel.append('open image: {} success'.format(imageFile))
+            self.infoPanel.setText('open image: {} success'.format(imageFile))
         else:
-            self.infoPanel.append('open image: {} error'.format(imageFile))
+            self.infoPanel.setText('open image: {} error'.format(imageFile))
 
     def getVideo(self):
         videoFile, _ = QFileDialog.getOpenFileName(self, 'Open file',
@@ -121,14 +127,14 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                     QPixmap.fromImage(videoImg).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
                 FPS = self.videoCap.get(cv2.CAP_PROP_FPS)
                 self.timer.start(1000 / FPS)
-                self.infoPanel.append('open video: {} success'.format(videoFile))
+                self.infoPanel.setText('open video: {} success'.format(videoFile))
             else:
-                self.infoPanel.append('read video: {} error'.format(videoFile))
+                self.infoPanel.setText('read video: {} error'.format(videoFile))
         else:
-            self.infoPanel.append('open video: {} error'.format(videoFile))
+            self.infoPanel.setText('open video: {} error'.format(videoFile))
 
     def nextFrame(self):
-        if self.state in [State.VIDEO_DETECTION,State.REAL_TIME_DETECTION]:
+        if self.state in [State.VIDEO_DETECTION, State.REAL_TIME_DETECTION]:
             if self.videoCap is not None:
                 ret, videoFrame = self.videoCap.read()
                 if ret:
@@ -170,7 +176,6 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                                                                                                     len(self.helmetIds) + len(
                                                                                                         self.headIds)))
 
-
     def detectImage(self):
         if self.state is State.IMAGE_DETECTION:
             result = self.detector.getInferResultFromPath(self.imagePath)
@@ -181,6 +186,9 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
             self.infoPanel.append(str(result))
 
     def setVideoDetect(self):
-        if self.state in [State.VIDEO_DETECTION,State.REAL_TIME_DETECTION]:
+        if self.state in [State.VIDEO_DETECTION, State.REAL_TIME_DETECTION]:
             self.isVideoDetect = not self.isVideoDetect
 
+    def exportData(self):
+        self.database.query2Excel('result')
+        self.infoPanel.append('Data saved successfully')
