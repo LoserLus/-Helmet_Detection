@@ -90,21 +90,48 @@ from PyQt5.QtMultimediaWidgets import QVideoWidget
 #
 # # 运行应用程序
 # app.exec_()
-from Detector import Detector
-import cv2
-
-detect = Detector()
-imgPath = 'D:\BaiduNetdiskDownload\VOC2028\VOC2028\JPEGImages\\000032.jpg'
-image = cv2.imread(imgPath)
-det, track = detect.getTrackingResult(image)
-print(det)
-print('***************************')
-print(track)
-for info in track:
-    print(info)
-    cv2.rectangle(image, (int(info[0]), int(info[1])), (int(info[2]), int(info[3])), (255, 0, 0), thickness=1)
-    cv2.putText(image, '#' + str(info[4]), (int(info[0]), int(info[1])), cv2.FONT_HERSHEY_PLAIN, 1.2, (255, 0, 0), 2)
-cv2.namedWindow("Hello", cv2.WINDOW_AUTOSIZE)
-cv2.imshow("Hello", image)
-cv2.waitKey(0)
-
+# from Detector import Detector
+# import cv2
+#
+# detect = Detector()
+# imgPath = 'D:\BaiduNetdiskDownload\VOC2028\VOC2028\JPEGImages\\000032.jpg'
+# image = cv2.imread(imgPath)
+# det, track = detect.getTrackingResult(image)
+# print(det)
+# print('***************************')
+# print(track)
+# for info in track:
+#     print(info)
+#     cv2.rectangle(image, (int(info[0]), int(info[1])), (int(info[2]), int(info[3])), (255, 0, 0), thickness=1)
+#     cv2.putText(image, '#' + str(info[4]), (int(info[0]), int(info[1])), cv2.FONT_HERSHEY_PLAIN, 1.2, (255, 0, 0), 2)
+# cv2.namedWindow("Hello", cv2.WINDOW_AUTOSIZE)
+# cv2.imshow("Hello", image)
+# cv2.waitKey(0)
+#
+# import pandas as pd
+# from sqlalchemy import create_engine
+# import datetime  # 依赖
+#
+# # 初始化数据库连接
+# # 按实际情况依次填写MySQL的用户名、密码、IP地址、端口、数据库名
+# # engine = create_engine('mysql+pymysql://root:12345678@localhost:3306/testdb')
+#
+# # 如果觉得上方代码不够优雅也可以按下面的格式填写
+# engine = create_engine("mysql+pymysql://{}:{}@{}:{}/{}".format('root', '123456', 'localhost', '3306', 'detection'))
+# sql_query = 'select * from result;'
+# # 使用pandas的read_sql_query函数执行SQL语句，并存入DataFrame
+# df_read = pd.read_sql_query(sql_query, engine)
+# print(df_read)
+#
+# data_time = datetime.datetime.now().strftime("%Y-%m-%d%H:%M:%S")  # 系统时间
+# # DataFrame写入MySQL
+# # 新建DataFrame
+# df_write = pd.DataFrame({'name': ['0001', '0002', '0003', '0004'], 'time': [data_time, data_time, data_time, data_time],
+#                          'helmet': [1, 2, 3, 4], 'head': [1, 2, 3, 4], 'total': [2, 4, 6, 8]})
+# # 将df储存为MySQL中的表，不储存index列
+# df_write.to_sql('result', engine, index=False, if_exists='append')
+# df_read = pd.read_sql_query(sql_query, engine)
+# print(df_read)
+from Database import Database
+database = Database()
+print(database.query2Excel('Test'))
