@@ -33,6 +33,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.musicPath = './src/Beep.mp3'
         self.videoCap = None
         self.isVideoDetect = False
+        self.isRealTimeDetect = False
         self.isMusicPlay = False
         self.timer = QTimer(self)
         self.center()
@@ -92,18 +93,24 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.timer.timeout.connect(self.nextFrame)
 
     def getCamera(self):
-        self.stateChangeTo(State.REAL_TIME_DETECTION)
-        self.videoCap = cv2.VideoCapture(0)
-        self.videoCap.set(cv2.CAP_PROP_FPS, 30)
-        ret, videoFrame = self.videoCap.read()
-        if ret:
-            videoFrame = cv2.cvtColor(videoFrame, cv2.COLOR_BGR2RGB)
-            videoImg = QImage(videoFrame.data, videoFrame.shape[1], videoFrame.shape[0], videoFrame.shape[1] * 3,
-                              QImage.Format_RGB888)
-            self.showPanel.setPixmap(
-                QPixmap.fromImage(videoImg).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
-        self.timer.start(1000 / 30)
-        self.infoPanel.setText('open camera success')
+        if not self.isRealTimeDetect:
+            self.stateChangeTo(State.REAL_TIME_DETECTION)
+            self.videoCap = cv2.VideoCapture(0)
+            self.videoCap.set(cv2.CAP_PROP_FPS, 30)
+            ret, videoFrame = self.videoCap.read()
+            if ret:
+                self.isRealTimeDetect = True
+                videoFrame = cv2.cvtColor(videoFrame, cv2.COLOR_BGR2RGB)
+                videoImg = QImage(videoFrame.data, videoFrame.shape[1], videoFrame.shape[0], videoFrame.shape[1] * 3,
+                                  QImage.Format_RGB888)
+                self.showPanel.setPixmap(
+                    QPixmap.fromImage(videoImg).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
+            self.timer.start(1000 / 30)
+            self.infoPanel.setText('open camera success')
+        else:
+            if self.videoCap is not None:
+                self.isRealTimeDetect = False
+                self.videoCap.release()
 
     def getImage(self):
         imageFile, _ = QFileDialog.getOpenFileName(self, 'Open file',
@@ -181,14 +188,18 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                         self.player.play()
                 else:
                     self.timer.stop()
-                    self.infoPanel.append('play video: {} done'.format(self.videoPath))
-                    self.infoPanel.append('Total Helmet: {}\nTotal Head:{}\nTotal Object:{}'.format(len(self.helmetIds),
+                    if self.state is State.VIDEO_DETECTION:
+                        self.infoPanel.append('play video: {} done'.format(self.videoPath))
+                    else:
+                        self.infoPanel.append('real time video done')
+                    if self.isVideoDetect:
+                        self.infoPanel.append('Total Helmet: {}\nTotal Head:{}\nTotal Object:{}'.format(len(self.helmetIds),
                                                                                                     len(self.headIds),
                                                                                                     len(self.helmetIds) + len(
                                                                                                         self.headIds)))
-                    name = self.videoPath
-                    self.database.insert(name, len(self.helmetIds), len(self.headIds))
-                    self.infoPanel.append(name + ' detection result saved to database successfully')
+                        name = self.videoPath if self.state is State.VIDEO_DETECTION else 'real_time'
+                        self.database.insert(name, len(self.helmetIds), len(self.headIds))
+                        self.infoPanel.append(name + ' detection result saved to database successfully')
 
     def detectImage(self):
         if self.state is State.IMAGE_DETECTION:
@@ -209,7 +220,10 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
     def updateState(self):
         self.statePanel.setText('系统状态: ' + self.stateList[int(self.state)])
         temp = '开启' if self.isVideoDetect else '关闭'
-        self.statePanel.append('视频检测状态:' + temp)
+        self.statePanel.append('安全帽检测状态:' + temp)
+        if self.state is State.REAL_TIME_DETECTION:
+            temp = '开启' if self.isRealTimeDetect else '关闭'
+            self.statePanel.append('实时检测状态:' + temp)
         temp = '开启' if self.isMusicPlay else '关闭'
         self.statePanel.append('警报状态:' + temp)
 
