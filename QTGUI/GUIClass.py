@@ -12,7 +12,8 @@ from PyQt5.QtWidgets import QWidget, QDesktopWidget, QFileDialog
 import GUIForm
 from Detector import Detector
 from Database import Database
-from playsound import playsound
+from ORMClass import VideoClass, DataClass
+from datetime import datetime
 
 
 class State(IntEnum):
@@ -42,6 +43,8 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.database = Database()
         self.helmetIds = set()
         self.headIds = set()
+        self.currentVideo = None
+        self.frameList = []
         self.stateList = ['初始化', '图像检测', '视频检测', '实时检测']
         self.state = None
         self.stateChangeTo(State.INIT)
@@ -107,6 +110,8 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                     QPixmap.fromImage(videoImg).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
             self.timer.start(1000 / 30)
             self.infoPanel.setText('open camera success')
+            self.currentVideo = VideoClass(name='real_time', time=datetime.now().strftime("%Y-%m-%d%H:%M:%S"))
+            self.currentVideo.id = self.database.insertResult(self.currentVideo)
         else:
             if self.videoCap is not None:
                 self.isRealTimeDetect = False
@@ -143,6 +148,8 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                 FPS = self.videoCap.get(cv2.CAP_PROP_FPS)
                 self.timer.start(1000 / FPS)
                 self.infoPanel.setText('open video: {} success'.format(videoFile))
+                self.currentVideo = VideoClass(name=self.videoPath, time=datetime.now().strftime("%Y-%m-%d%H:%M:%S"))
+                self.currentVideo.id = self.database.insertResult(self.currentVideo)
             else:
                 self.infoPanel.setText('read video: {} error'.format(videoFile))
         else:
@@ -183,9 +190,21 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                                       videoFrame.shape[1] * 3, QImage.Format_RGB888)
                     self.showPanel.setPixmap(
                         QPixmap.fromImage(videoImg).scaled(self.showPanel.size(), QtCore.Qt.KeepAspectRatio))
-                    if self.isMusicPlay and headNum > 0:
-                        # playsound(self.musicPath,block=False)
-                        self.player.play()
+                    if headNum > 0:
+                        if self.state is State.VIDEO_DETECTION:
+                            dtime = self.videoCap.get(cv2.CAP_PROP_POS_MSEC)
+                            dtime = datetime.utcfromtimestamp(dtime / 1000.0).time().strftime("%H:%M:%S.%f")[0:-3]
+                        else:
+                            dtime = datetime.now()
+                        if len(self.frameList) > 1000:
+                            self.database.insertData(self.frameList)
+                            self.frameList.clear()
+                        self.frameList.append(
+                            DataClass(vid=self.currentVideo.id, time=dtime, helmet=helmetNum, head=headNum,
+                                      total=headNum + helmetNum))
+                        if self.isMusicPlay:
+                            # playsound(self.musicPath,block=False)
+                            self.player.play()
                 else:
                     self.timer.stop()
                     if self.state is State.VIDEO_DETECTION:
@@ -193,13 +212,20 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
                     else:
                         self.infoPanel.append('real time video done')
                     if self.isVideoDetect:
-                        self.infoPanel.append('Total Helmet: {}\nTotal Head:{}\nTotal Object:{}'.format(len(self.helmetIds),
-                                                                                                    len(self.headIds),
-                                                                                                    len(self.helmetIds) + len(
-                                                                                                        self.headIds)))
-                        name = self.videoPath if self.state is State.VIDEO_DETECTION else 'real_time'
-                        self.database.insert(name, len(self.helmetIds), len(self.headIds))
-                        self.infoPanel.append(name + ' detection result saved to database successfully')
+                        self.infoPanel.append(
+                            'Total Helmet: {}\nTotal Head:{}\nTotal Object:{}'.format(len(self.helmetIds),
+                                                                                      len(self.headIds),
+                                                                                      len(self.helmetIds) + len(
+                                                                                          self.headIds)))
+                        if len(self.frameList) > 0:
+                            self.database.insertData(self.frameList)
+                            self.frameList.clear()
+                        self.currentVideo.helmet = len(self.helmetIds)
+                        self.currentVideo.head = len(self.headIds)
+                        self.currentVideo.total = self.currentVideo.head + self.currentVideo.helmet
+                        self.database.updateResultCount(self.currentVideo)
+                        self.infoPanel.append(
+                            self.currentVideo.name + ' detection result saved to database successfully')
 
     def detectImage(self):
         if self.state is State.IMAGE_DETECTION:
