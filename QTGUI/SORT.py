@@ -200,6 +200,7 @@ class Sort(object):
     def clear(self):
         self.trackers.clear()
         KalmanBoxTracker.count=0
+        self.frame_count = 0
     def update(self, dets=np.empty((0, 6))):
         """
         Params:
