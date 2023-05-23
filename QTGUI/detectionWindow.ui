@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DetectionWindow</class>
+ <widget class="QMainWindow" name="DetectionWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1013</width>
+    <height>776</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout_3" stretch="8,2">
+      <item>
+       <widget class="QLabel" name="showPanel">
+        <property name="lineWidth">
+         <number>0</number>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap>src/Camera.png</pixmap>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="Line" name="VLine">
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <property name="lineWidth">
+           <number>3</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTextBrowser" name="infoPanel"/>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1013</width>
+     <height>26</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>文件</string>
+    </property>
+    <addaction name="importPicAction"/>
+    <addaction name="importVideoAction"/>
+    <addaction name="openCameraAction"/>
+   </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>功能</string>
+    </property>
+    <addaction name="exportDataAction"/>
+    <addaction name="openAlertAction"/>
+    <addaction name="openDetectAction"/>
+   </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>关于</string>
+    </property>
+    <addaction name="showInfoAction"/>
+   </widget>
+   <addaction name="menu"/>
+   <addaction name="menu_2"/>
+   <addaction name="menu_3"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="openDetectAction"/>
+   <addaction name="openAlertAction"/>
+   <addaction name="exportDataAction"/>
+  </widget>
+  <action name="importPicAction">
+   <property name="text">
+    <string>导入图片</string>
+   </property>
+  </action>
+  <action name="importVideoAction">
+   <property name="text">
+    <string>导入视频</string>
+   </property>
+  </action>
+  <action name="exportDataAction">
+   <property name="icon">
+    <iconset resource="src/icons.qrc">
+     <normaloff>:/icons/export.png</normaloff>:/icons/export.png</iconset>
+   </property>
+   <property name="text">
+    <string>导出结果</string>
+   </property>
+  </action>
+  <action name="openAlertAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="src/icons.qrc">
+     <normaloff>:/icons/ring.png</normaloff>:/icons/ring.png</iconset>
+   </property>
+   <property name="text">
+    <string>检测警报</string>
+   </property>
+  </action>
+  <action name="openCameraAction">
+   <property name="text">
+    <string>实时输入</string>
+   </property>
+  </action>
+  <action name="openDetectAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="src/icons.qrc">
+     <normaloff>:/icons/detect.png</normaloff>:/icons/detect.png</iconset>
+   </property>
+   <property name="text">
+    <string>启动检测</string>
+   </property>
+  </action>
+  <action name="showInfoAction">
+   <property name="text">
+    <string>系统介绍</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="src/icons.qrc"/>
+ </resources>
+ <connections/>
+</ui>
