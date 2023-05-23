@@ -15,6 +15,8 @@ from Database import Database
 from ORMClass import VideoClass, DataClass
 from datetime import datetime
 
+from QTGUI.TableClass import TableGUI
+
 
 class State(IntEnum):
     INIT = 0
@@ -41,6 +43,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.bindFunction()
         self.detector = Detector()
         self.database = Database()
+        self.tableWindow = None
         self.helmetIds = set()
         self.headIds = set()
         self.currentVideo = None
@@ -53,6 +56,11 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.player.setMedia(self.music)
         self.player.setVolume(50.0)
 
+    def openTableWindow(self):
+        if self.tableWindow is None:
+            self.tableWindow = TableGUI(self.database)
+        self.tableWindow.setData()
+        self.tableWindow.show()
     def center(self):  # 定义一个函数使得窗口居中显示
         # 获取屏幕坐标系
         screen = QDesktopWidget().screenGeometry()
@@ -92,7 +100,7 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
         self.videoDetectionBtn.clicked.connect(self.setVideoDetect)
         self.cameraBtn.clicked.connect(self.getCamera)
         self.soundBtn.clicked.connect(self.setMusicPlay)
-        self.dataExportBtn.clicked.connect(self.exportData)
+        self.dataExportBtn.clicked.connect(self.openTableWindow)
         self.timer.timeout.connect(self.nextFrame)
 
     def getCamera(self):
