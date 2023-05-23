@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="src/icons.qrc">
+    <normaloff>:/icons/system.png</normaloff>:/icons/system.png</iconset>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
@@ -80,7 +84,8 @@
     </property>
     <addaction name="exportDataAction"/>
     <addaction name="openAlertAction"/>
-    <addaction name="openDetectAction"/>
+    <addaction name="videoDetectAction"/>
+    <addaction name="imageDetectAction"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -103,16 +108,28 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="openDetectAction"/>
+   <addaction name="importPicAction"/>
+   <addaction name="importVideoAction"/>
+   <addaction name="openCameraAction"/>
+   <addaction name="imageDetectAction"/>
+   <addaction name="videoDetectAction"/>
    <addaction name="openAlertAction"/>
    <addaction name="exportDataAction"/>
   </widget>
   <action name="importPicAction">
+   <property name="icon">
+    <iconset resource="src/icons.qrc">
+     <normaloff>:/icons/pic.png</normaloff>:/icons/pic.png</iconset>
+   </property>
    <property name="text">
     <string>导入图片</string>
    </property>
   </action>
   <action name="importVideoAction">
+   <property name="icon">
+    <iconset resource="src/icons.qrc">
+     <normaloff>:/icons/video.png</normaloff>:/icons/video.png</iconset>
+   </property>
    <property name="text">
     <string>导入视频</string>
    </property>
@@ -139,25 +156,41 @@
    </property>
   </action>
   <action name="openCameraAction">
+   <property name="icon">
+    <iconset resource="src/icons.qrc">
+     <normaloff>:/icons/Camera.png</normaloff>:/icons/Camera.png</iconset>
+   </property>
    <property name="text">
     <string>实时输入</string>
    </property>
   </action>
-  <action name="openDetectAction">
+  <action name="videoDetectAction">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="icon">
     <iconset resource="src/icons.qrc">
-     <normaloff>:/icons/detect.png</normaloff>:/icons/detect.png</iconset>
+     <normaloff>:/icons/videoDetect.png</normaloff>:/icons/videoDetect.png</iconset>
    </property>
    <property name="text">
-    <string>启动检测</string>
+    <string>视频检测</string>
+   </property>
+   <property name="toolTip">
+    <string>视频检测</string>
    </property>
   </action>
   <action name="showInfoAction">
    <property name="text">
     <string>系统介绍</string>
+   </property>
+  </action>
+  <action name="imageDetectAction">
+   <property name="icon">
+    <iconset resource="src/icons.qrc">
+     <normaloff>:/icons/picDetect.png</normaloff>:/icons/picDetect.png</iconset>
+   </property>
+   <property name="text">
+    <string>图像检测</string>
    </property>
   </action>
  </widget>
