@@ -7,237 +7,242 @@
     <x>0</x>
     <y>0</y>
     <width>1245</width>
-    <height>800</height>
+    <height>799</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QLabel" name="showPanel">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1017</width>
-     <height>600</height>
-    </rect>
-   </property>
-   <property name="lineWidth">
-    <number>0</number>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="pixmap">
-    <pixmap>src/Camera.png</pixmap>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-  </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>1020</x>
-     <y>0</y>
-     <width>221</width>
-     <height>611</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QPushButton" name="imageSelectBtn">
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="baseSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>图像选择</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="imageDetectionBtn">
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="baseSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>图像检测</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="videoSelectBtn">
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="baseSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>视频选择</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="cameraBtn">
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="baseSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>实时画面</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="videoDetectionBtn">
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="baseSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>视频检测</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="soundBtn">
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="baseSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>安全警报</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="dataExportBtn">
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="baseSize">
-       <size>
-        <width>200</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>数据导出</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="Line" name="VLine">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>600</y>
-     <width>1241</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <property name="lineWidth">
-    <number>3</number>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-  </widget>
-  <widget class="Line" name="HLine">
-   <property name="geometry">
-    <rect>
-     <x>1015</x>
-     <y>-10</y>
-     <width>5</width>
-     <height>810</height>
-    </rect>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Raised</enum>
-   </property>
-   <property name="lineWidth">
-    <number>10</number>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Vertical</enum>
-   </property>
-  </widget>
-  <widget class="QTextBrowser" name="infoPanel">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>611</y>
-     <width>1017</width>
-     <height>190</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QTextBrowser" name="statePanel">
-   <property name="geometry">
-    <rect>
-     <x>1020</x>
-     <y>610</y>
-     <width>221</width>
-     <height>192</height>
-    </rect>
-   </property>
-  </widget>
+  <layout class="QVBoxLayout" name="verticalLayout_6">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="8,2">
+     <item>
+      <layout class="QVBoxLayout" name="verticalLayout_3" stretch="8,2">
+       <item>
+        <widget class="QLabel" name="showPanel">
+         <property name="lineWidth">
+          <number>0</number>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap>src/Camera.png</pixmap>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="Line" name="VLine">
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <property name="lineWidth">
+            <number>3</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTextBrowser" name="infoPanel"/>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
+       <item>
+        <widget class="Line" name="HLine">
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <property name="lineWidth">
+          <number>10</number>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_4" stretch="8,2">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetDefaultConstraint</enum>
+         </property>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinAndMaxSize</enum>
+           </property>
+           <item>
+            <widget class="QPushButton" name="imageSelectBtn">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>200</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>图像选择</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="imageDetectionBtn">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>200</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>图像检测</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="videoSelectBtn">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>200</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>视频选择</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="cameraBtn">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>实时画面</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="videoDetectionBtn">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>视频检测</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="soundBtn">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>安全警报</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="dataExportBtn">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="baseSize">
+              <size>
+               <width>0</width>
+               <height>50</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>数据导出</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_5">
+           <item>
+            <widget class="Line" name="VLine_2">
+             <property name="frameShadow">
+              <enum>QFrame::Raised</enum>
+             </property>
+             <property name="lineWidth">
+              <number>3</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QTextBrowser" name="statePanel"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
