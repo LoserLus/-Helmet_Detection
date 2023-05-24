@@ -7,14 +7,13 @@ from PyQt5 import QtCore, QtMultimedia
 from PyQt5.QtCore import QTimer, QUrl
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtMultimedia import QMediaContent
-from PyQt5.QtWidgets import QWidget, QDesktopWidget, QFileDialog
+from PyQt5.QtWidgets import QWidget, QDesktopWidget, QFileDialog, QMainWindow
 
-import GUIForm
 from Detector import Detector
 from Database import Database
 from ORMClass import VideoClass, DataClass
 from datetime import datetime
-
+import DetectionGUIForm
 from QTGUI.TableClass import TableGUI
 
 
@@ -25,7 +24,7 @@ class State(IntEnum):
     REAL_TIME_DETECTION = 3
 
 
-class GUI(QWidget, GUIForm.Ui_HelmetDetection):
+class GUI(QMainWindow, DetectionGUIForm.Ui_DetectionWindow):
 
     def __init__(self):
         super().__init__()
@@ -94,14 +93,15 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
 
     def bindFunction(self):
 
-        self.imageSelectBtn.clicked.connect(self.getImage)
-        self.imageDetectionBtn.clicked.connect(self.detectImage)
-        self.videoSelectBtn.clicked.connect(self.getVideo)
-        self.videoDetectionBtn.clicked.connect(self.setVideoDetect)
-        self.cameraBtn.clicked.connect(self.getCamera)
-        self.soundBtn.clicked.connect(self.setMusicPlay)
-        self.dataExportBtn.clicked.connect(self.openTableWindow)
+        self.importPicAction.triggered.connect(self.getImage)
+        self.importVideoAction.triggered.connect(self.getVideo)
+        self.videoDetectAction.toggled[bool].connect(self.setVideoDetect)
+        self.imageDetectAction.triggered.connect(self.detectImage)
+        self.openCameraAction.triggered.connect(self.getCamera)
+        self.openAlertAction.toggled[bool].connect(self.setMusicPlay)
+        self.exportDataAction.triggered.connect(self.openTableWindow)
         self.timer.timeout.connect(self.nextFrame)
+
 
     def getCamera(self):
         if not self.isRealTimeDetect:
@@ -252,24 +252,33 @@ class GUI(QWidget, GUIForm.Ui_HelmetDetection):
             self.infoPanel.append('image detection result saved to database successfully')
 
     def updateState(self):
-        self.statePanel.setText('系统状态: ' + self.stateList[int(self.state)])
+        state1 = '系统状态: ' + self.stateList[int(self.state)] + '\t'
         temp = '开启' if self.isVideoDetect else '关闭'
-        self.statePanel.append('安全帽检测状态:' + temp)
+        state2 = '安全帽检测状态:' + temp + '\t'
+        temp = '开启' if self.isMusicPlay else '关闭'
+        state3 = '警报状态:' + temp + '\t'
+        state = state1+state2+state3
         if self.state is State.REAL_TIME_DETECTION:
             temp = '开启' if self.isRealTimeDetect else '关闭'
-            self.statePanel.append('实时检测状态:' + temp)
-        temp = '开启' if self.isMusicPlay else '关闭'
-        self.statePanel.append('警报状态:' + temp)
+            state4 = '实时检测状态:' + temp + '\t'
+            state = state + state4
+        self.statusbar.showMessage(state)
 
     def setVideoDetect(self):
         if self.state in [State.VIDEO_DETECTION, State.REAL_TIME_DETECTION]:
-            self.isVideoDetect = not self.isVideoDetect
+            if self.videoDetectAction.isChecked():
+                self.isVideoDetect = True
+            else:
+                self.isVideoDetect = False
             self.updateState()
             # if self.state is State.REAL_TIME_DETECTION and self
 
     def setMusicPlay(self):
         if self.state in [State.VIDEO_DETECTION, State.REAL_TIME_DETECTION]:
-            self.isMusicPlay = not self.isMusicPlay
+            if self.openAlertAction.isChecked():
+                self.isMusicPlay = True
+            else:
+                self.isMusicPlay = False
             self.updateState()
 
     def exportData(self):
