@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from enum import IntEnum
 
 import cv2
@@ -7,13 +8,12 @@ from PyQt5 import QtCore, QtMultimedia
 from PyQt5.QtCore import QTimer, QUrl
 from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtMultimedia import QMediaContent
-from PyQt5.QtWidgets import QWidget, QDesktopWidget, QFileDialog, QMainWindow
+from PyQt5.QtWidgets import QDesktopWidget, QFileDialog, QMainWindow
 
-from Detector import Detector
-from Database import Database
-from ORMClass import VideoClass, DataClass
-from datetime import datetime
 import DetectionGUIForm
+from Database import Database
+from Detector import Detector
+from ORMClass import VideoClass, DataClass
 from QTGUI.TableClass import TableGUI
 
 
@@ -60,6 +60,7 @@ class GUI(QMainWindow, DetectionGUIForm.Ui_DetectionWindow):
             self.tableWindow = TableGUI(self.database)
         self.tableWindow.setData()
         self.tableWindow.show()
+
     def center(self):  # 定义一个函数使得窗口居中显示
         # 获取屏幕坐标系
         screen = QDesktopWidget().screenGeometry()
@@ -101,7 +102,6 @@ class GUI(QMainWindow, DetectionGUIForm.Ui_DetectionWindow):
         self.openAlertAction.toggled[bool].connect(self.setMusicPlay)
         self.exportDataAction.triggered.connect(self.openTableWindow)
         self.timer.timeout.connect(self.nextFrame)
-
 
     def getCamera(self):
         if not self.isRealTimeDetect:
@@ -184,11 +184,20 @@ class GUI(QMainWindow, DetectionGUIForm.Ui_DetectionWindow):
                                 label = 'head'
                                 headNum = headNum + 1
                                 self.headIds.add(info[4])
+                            # videoFrame=Image.fromarray(videoFrame)
+                            # # print(type(temp))
+                            # # print(type(videoFrame))
+                            # draw = ImageDraw.Draw(videoFrame,mode='RGB')
+                            # draw.rectangle(xy=[(info[0], info[1]), (info[2], info[3])],
+                            #                outline=(int(255 * (1 - info[5])), int(255 * info[5]), 0), width=1)
+                            # draw.text(xy=(info[0], info[1]),
+                            #           text=label + '#' + str(int(info[4])), fill=(255, 0, 0))
+                            # videoFrame = numpy.asarray(videoFrame)
                             cv2.rectangle(videoFrame, (int(info[0]), int(info[1])), (int(info[2]), int(info[3])),
-                                          (255 * (1 - info[5]), 255 * info[5], 0), thickness=1)
+                                          (255 * (1 - info[5]), 255 * info[5], 0), thickness=2)
                             cv2.putText(videoFrame, label + '#' + str(int(info[4])), (int(info[0]), int(info[1])),
-                                        cv2.FONT_HERSHEY_PLAIN,
-                                        1.2, (255, 0, 0), 1)
+                                        cv2.FONT_HERSHEY_SIMPLEX,
+                                        fontScale=0.75, color=(255, 0, 0),  thickness=2)
 
                             self.infoPanel.setText(
                                 'Helmet Count: ' + str(helmetNum) + '\n' + 'Head Count:' + str(headNum))
@@ -257,7 +266,7 @@ class GUI(QMainWindow, DetectionGUIForm.Ui_DetectionWindow):
         state2 = '安全帽检测状态:' + temp + '\t'
         temp = '开启' if self.isMusicPlay else '关闭'
         state3 = '警报状态:' + temp + '\t'
-        state = state1+state2+state3
+        state = state1 + state2 + state3
         if self.state is State.REAL_TIME_DETECTION:
             temp = '开启' if self.isRealTimeDetect else '关闭'
             state4 = '实时检测状态:' + temp + '\t'
